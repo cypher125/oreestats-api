@@ -1,0 +1,131 @@
+# ============================================
+# AISDR MVP - Oree Stats API
+# Django Backend Requirements
+# Python 3.10+
+# Date: November 3, 2025
+# ============================================
+
+# ============================================
+# CORE DJANGO
+# ============================================
+Django
+djangorestframework
+django-cors-headers
+django-filter
+
+# ============================================
+# DATABASE
+# ============================================
+psycopg2-binary
+# Note: Use psycopg2 (not binary) in production
+# psycopg2
+dj-database-url  # Parse DATABASE_URL (for Render deployment)
+
+# ============================================
+# GMAIL API & GOOGLE AUTHENTICATION
+# ============================================
+google-api-python-client
+google-auth
+google-auth-httplib2
+google-auth-oauthlib
+googleapis-common-protos
+# ============================================
+# ASYNC TASK QUEUE (CELERY)
+# ============================================
+celery
+redis
+django-celery-beat  # For periodic tasks
+django-celery-results  # Store task results in DB
+
+# ============================================
+# ENVIRONMENT & CONFIGURATION
+# ============================================
+python-dotenv
+python-decouple
+
+# ============================================
+# SECURITY & AUTHENTICATION
+# ============================================
+djangorestframework-simplejwt  # JWT for API auth
+cryptography  # For encrypting OAuth tokens
+PyJWT
+
+# ============================================
+# HTML & EMAIL PROCESSING
+# ============================================
+beautifulsoup4
+lxml
+html2text
+bleach # Sanitize HTML
+
+# ============================================
+# HTTP & REQUESTS
+# ============================================
+requests
+urllib3
+httpx  # Modern async HTTP client
+
+# ============================================
+# UTILITIES
+# ============================================
+python-dateutil
+pytz==2023.3.post1
+pillow  # For image processing (tracking pixel)
+user-agents  # Parse user agent strings
+python-magic # File type detection
+
+# ============================================
+# MONITORING & LOGGING
+# ============================================
+sentry-sdk  # Error tracking
+django-debug-toolbar  # Development debugging
+
+# ============================================
+# RATE LIMITING & CACHING
+# ============================================
+django-ratelimit
+django-redis
+
+# ============================================
+# API DOCUMENTATION
+# ============================================
+drf-spectacular==0.27.0  # OpenAPI/Swagger docs
+drf-yasg==1.21.7  # Alternative Swagger generator
+
+# ============================================
+# TESTING
+# ============================================
+pytest==7.4.3
+pytest-django==4.7.0
+pytest-cov==4.1.0
+factory-boy==3.3.0  # Test fixtures
+faker==20.1.0  # Generate fake data for tests
+responses==0.24.1  # Mock HTTP requests
+
+# ============================================
+# CODE QUALITY
+# ============================================
+black==23.12.0  # Code formatter
+flake8==6.1.0  # Linter
+pylint==3.0.3
+isort==5.13.2  # Import sorting
+
+# ============================================
+# PRODUCTION SERVER
+# ============================================
+gunicorn==21.2.0  # WSGI server
+uvicorn==0.25.0  # ASGI server (if using async)
+whitenoise==6.6.0  # Serve static files
+
+# ============================================
+# DEPLOYMENT & DEVOPS
+# ============================================
+django-storages==1.14.2  # Cloud storage (S3, etc.)
+boto3==1.34.7  # AWS SDK (if using S3)
+
+# ============================================
+# ADDITIONAL UTILITIES
+# ============================================
+django-extensions==3.2.3  # Extra management commands
+django-environ==0.11.2  # Alternative to python-dotenv
+ipython==8.18.1  # Better Python shell
