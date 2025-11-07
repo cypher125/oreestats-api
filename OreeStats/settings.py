@@ -144,11 +144,12 @@ SPECTACULAR_SETTINGS = {
     },
     'SERVERS': [
         {
-            'url': 'http://localhost:8000',
-            'description': 'Development Server'
-        },
+            'url': os.getenv('API_URL', 'http://localhost:8000'),
+            'description': 'API Server'
+        }
+    ] if DEBUG else [
         {
-            'url': 'https://api.yourdomain.com',
+            'url': os.getenv('API_URL', 'https://oreestats-api.onrender.com'),
             'description': 'Production Server'
         }
     ],
