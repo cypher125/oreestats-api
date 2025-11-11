@@ -188,10 +188,13 @@ services:
 # ==================================================
 # POSTGRESQL DATABASE
 # ==================================================
-databases:
-  - name: oreestats-db
-    databaseName: oreestats
-    user: oreestats_user
-    region: oregon
-    plan: starter
-    ipAllowList: []  # Allow all IPs (needed for external AISDR database access)
+# NOTE: Using external Neon database
+# Set DATABASE_URL manually in environment variables
+# 
+# databases:
+#   - name: oreestats-db
+#     databaseName: oreestats
+#     user: oreestats_user
+#     region: oregon
+#     plan: starter
+#     ipAllowList: []  # Allow all IPs (needed for external AISDR database access)
