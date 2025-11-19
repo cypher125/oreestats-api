@@ -1,0 +1,200 @@
+services:
+  # ==================================================
+  # MAIN DJANGO WEB SERVICE
+  # ==================================================
+  - type: web
+    name: oreestats-api
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn OreeStats.wsgi:application --bind 0.0.0.0:$PORT"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: .onrender.com,oreestats-api.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oreestats-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: OREE_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: GOOGLE_CLIENT_ID
+        sync: false  # Set this manually
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false  # Set this manually
+      - key: GOOGLE_REDIRECT_URI
+        sync: false  # Set this manually (e.g., https://your-app.onrender.com/api/oauth/callback)
+      - key: GMAIL_SCOPES
+        value: https://www.googleapis.com/auth/gmail.send,https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/gmail.modify
+      - key: TRACKING_DOMAIN
+        sync: false  # Set to your app domain
+      - key: TRACKING_PROTOCOL
+        value: https
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # Set to your frontend URLs
+      - key: API_URL
+        value: https://oreestats-api.onrender.com
+      - key: WEB_CONCURRENCY
+        value: 4
+
+  # ==================================================
+  # CELERY WORKER (EMAIL PROCESSING)
+  # ==================================================
+  - type: worker
+    name: oreestats-celery-worker
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A OreeStats worker --loglevel=info --concurrency=2"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        fromService:
+          name: oreestats-api
+          type: web
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oreestats-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        fromService:
+          name: oreestats-api
+          type: web
+          envVarKey: JWT_SECRET_KEY
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GMAIL_SCOPES
+        value: https://www.googleapis.com/auth/gmail.send,https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/gmail.modify
+      - key: TRACKING_DOMAIN
+        sync: false
+      - key: TRACKING_PROTOCOL
+        value: https
+
+  # ==================================================
+  # CELERY BEAT (SCHEDULED TASKS)
+  # ==================================================
+  - type: worker
+    name: oreestats-celery-beat
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A OreeStats beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        fromService:
+          name: oreestats-api
+          type: web
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oreestats-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: oreestats-redis
+          type: pserv
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        fromService:
+          name: oreestats-api
+          type: web
+          envVarKey: JWT_SECRET_KEY
+      - key: JWT_ALGORITHM
+        value: HS256
+
+  # ==================================================
+  # REDIS (MESSAGE BROKER & CACHE)
+  # ==================================================
+  - type: pserv
+    name: oreestats-redis
+    env: docker
+    region: oregon
+    plan: starter
+    image:
+      url: docker.io/redis:7-alpine
+    disk:
+      name: redis-data
+      mountPath: /data
+      sizeGB: 1
+
+# ==================================================
+# POSTGRESQL DATABASE
+# ==================================================
+# NOTE: Using external Neon database
+# Set DATABASE_URL manually in environment variables
+# 
+# databases:
+#   - name: oreestats-db
+#     databaseName: oreestats
+#     user: oreestats_user
+#     region: oregon
+#     plan: starter
+#     ipAllowList: []  # Allow all IPs (needed for external AISDR database access)
